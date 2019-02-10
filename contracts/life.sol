@@ -7,6 +7,7 @@ contract Life {
   using SafeMath for uint256;
 
   mapping(address => uint256) public health;
+  mapping(address => uint256) public lastActionTimestamp;
 
   function spawn() payable public {
     require(msg.value == 1 ether);
@@ -18,15 +19,22 @@ contract Life {
     return health[x] > 0;
   }
 
-  function hit(address victim) public {
+  modifier cooldown() {
+    require(now - lastActionTimestamp[msg.sender] > 1 days);
+    _;
+    lastActionTimestamp[msg.sender] = now;
+  }
+
+  function hit(address victim) cooldown public {
     require(isAlive(msg.sender));
     health[victim] = health[victim].sub(1); 
   }
 
-  function heal(address friend) public {
+  function heal(address friend) cooldown public {
     require(isAlive(msg.sender));
     require(health[friend] < 10);
     health[friend] = health[friend].add(1); 
+    lastActionTimestamp[msg.sender] = now;
   }
 }
 
