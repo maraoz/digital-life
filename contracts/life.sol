@@ -14,11 +14,17 @@ contract Life {
     address(0).transfer(msg.value);
   }
 
+  function isAlive(address x) public view returns (bool) {
+    return health[x] > 0;
+  }
+
   function hit(address victim) public {
+    require(isAlive(msg.sender));
     health[victim] = health[victim].sub(1); 
   }
 
   function heal(address friend) public {
+    require(isAlive(msg.sender));
     require(health[friend] < 10);
     health[friend] = health[friend].add(1); 
   }
